@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "chvp"
 version = "0.0.1"
 dependencies = [
+  "argcomplete",
   "ansible-vault",
   "PyYAML"
 ]
@@ -26,9 +27,13 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/terasik/chvp"
 
+[tool.setuptools.package-dir]
+chvp="src"
+
 [project.scripts]
 chvp = "chvp.cli:main"
 
 #[tool.setuptools.package-data]
 #"chvp.examples" = ["*"]
+
 
