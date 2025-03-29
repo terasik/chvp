@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chvp"
+version = "0.0.1"
+dependencies = [
+  "ansible-vault",
+  "PyYAML"
+]
+authors = [
+  { name="terasik" },
+]
+description = "changing vault passwords"
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: Linux",
+]
+
+[project.urls]
+Homepage = "https://github.com/terasik/chvp"
+
+[project.scripts]
+chvp = "chvp.cli:main"
+
+#[tool.setuptools.package-data]
+#"chvp.examples" = ["*"]
+
