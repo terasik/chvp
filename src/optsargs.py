@@ -6,7 +6,7 @@ chvp [-g [LENGTH]] -i VAULT_ID [VAULT_ID ..]
 """
 
 import argparse
-#import argcomplete
+import argcomplete
 #from .yavault import VaultData
 
 cliparser=argparse.ArgumentParser(
@@ -31,5 +31,5 @@ cliparser.add_argument('-g', '--generate', '--gen-passwd', '--generate-password'
                       type=int,
                       choices=list(range(8,64)))
 
-
+argcomplete.autocomplete(cliparser)
 

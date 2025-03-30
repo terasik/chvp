@@ -31,7 +31,7 @@ Homepage = "https://github.com/terasik/chvp"
 chvp="src"
 
 [project.scripts]
-chvp = "chvp.cli:main"
+vach = "chvp.cli:main"
 
 #[tool.setuptools.package-data]
 #"chvp.examples" = ["*"]
