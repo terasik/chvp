@@ -24,14 +24,19 @@ class VaultData:
     "vault_id2": "new_password2"
   }
   """
-  vault_data={}
-  vault_data_new={}
+  data={"vid": "old"}
+  data_new={"vid": "new"}
+  
+  @classmethod
+  def show(cls):
+    print("vault data old: %s" % cls.data)
+    print("vault data new: %s" % cls.data_new)
   
 
 class YamlVault:
   """ class für yaml vault tag """
   def __init__(self, **kwargs):
-    self._passwd=VaultData.vault_data
+    self._passwd=VaultData.data
     self._vault_id=None
     # first line split von cipher text
     self.flsp=None

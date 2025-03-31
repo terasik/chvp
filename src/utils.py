@@ -6,9 +6,11 @@ modul with helper functions
 """
 __all__=["dumps_obj", "load_yaml", "dump_yaml", "gen_secrets"]
 
+import logging
 import os
 import string
 import secrets
+from getpass import getpass
 import yaml
 from .yavault import get_plain_dumper,get_cipher_dumper,get_loader
 
@@ -68,7 +70,7 @@ def gen_secrets(**kwargs):
   """
   secs=[]
   token=kwargs.get("token", False)
-  length=kwargs.get("length", 17)
+  length=kwargs.get("length", 20)
   count=kwargs.get("count", 1)
   for _ in range(count):
     if not token:
@@ -79,3 +81,25 @@ def gen_secrets(**kwargs):
     else:
       secs.append(secrets.token_urlsafe())
   return secs
+
+def ask_vault_id_passwd(vid, old=True, retype=False):
+  """ function that read vault_id(vid) from stdin
+  """
+  for _ in range(2):
+    try:
+      if old:
+        p=getpass("old password for vault_id=%s: " % vid)
+      else:
+        if retype:
+          p=getpass("retype new password for vault_id=%s: " % vid)
+        else:
+          p=getpass("new password for vault_id=%s: " % vid)
+    except KeyboardInterrupt:
+      logging.info("ctrl-c received")
+      continue
+    p=p.strip()
+    if not p:
+      logging.warning("invalid or empty password")
+      continue
+    return p
+  raise ValueError("invalid or empty password provided")

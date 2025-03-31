@@ -20,10 +20,11 @@ cliparser.add_argument('src',
 # provide vault ids
 cliparser.add_argument('-i', '--vault-id',
                       action='append',
+                      dest='vault_id',
                       type=str,
                       required=True)
 # generate password ?
-cliparser.add_argument('-g', '--generate', '--gen-passwd', '--generate-password',
+cliparser.add_argument('-g', '--gen-passwd',
                       dest='gen_passwd',
                       nargs='?',
                       default=None,
