@@ -36,7 +36,10 @@ class VaultData:
 class YamlVault:
   """ class für yaml vault tag """
   def __init__(self, **kwargs):
-    self._passwd=VaultData.data
+    if kwargs.get("use_new", False):
+      self._passwd=VaultData.data_new
+    else:
+      self._passwd=VaultData.data
     self._vault_id=None
     # first line split von cipher text
     self.flsp=None

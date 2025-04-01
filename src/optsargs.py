@@ -16,13 +16,17 @@ cliparser=argparse.ArgumentParser(
 # positional arguments files or directories
 cliparser.add_argument('src',
                       nargs='*',
-                      default=['.'])
+                      # TODO. default=['.']
+                      default=['~/vach_test_file.yml'])
 # provide vault ids
 cliparser.add_argument('-i', '--vault-id',
                       action='append',
                       dest='vault_id',
                       type=str,
-                      required=True)
+                      # TODO: no default,
+                      default=["vid"],
+                      # TODO: required=True
+                      required=False)
 # generate password ?
 cliparser.add_argument('-g', '--gen-passwd',
                       dest='gen_passwd',

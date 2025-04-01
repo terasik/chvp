@@ -2,9 +2,10 @@
 modul with main main class
 """
 import logging
+from copy import deepcopy
 from .optsargs import cliparser
-from .yavault import VaultData
-from .utils import ask_vault_id_passwd, gen_secrets
+from .yavault import VaultData, YamlVault
+from .utils import ask_vault_id_passwd, gen_secrets, load_yaml, dump_yaml
 
 class ChangeVaultPasswd():
   """ class for changing vault passworsi
@@ -46,13 +47,54 @@ class ChangeVaultPasswd():
         if p1!=p2:
           raise ValueError("different passwords for the same vault_id")
         VaultData.data_new.update({vid: p1})
-        
+
+  def _create_new_vault_obj(self, old_vobj):
+    """ create new vault from old
+    """
+    new_vobj=YamlVault(use_new=True, vault_id=old_vobj.vault_id, plain_text=old_vobj.plain_text)
+    return new_vobj
+    
+
+  def _search_for_vault(self, obj, deep=0):
+    """ searching recursiv in obj for vaults
+    """
+    if type(obj)==dict:
+      for k,v in obj.items():
+        #logging.info("deep=%s obj=dict key=%s value=%s value_type=%s(%s)", deep,k,v,type(v),type(v).__name__)
+        if isinstance(v, (list,dict)):
+          self._search_for_vault(v, deep+1)
+        elif isinstance(v, (YamlVault)):
+          logging.info("++++++ found vault in dict: vid=%s plain=%s", v.vault_id, v.plain_text)
+          obj[k]=self._create_new_vault_obj(v)
+    elif type(obj)==list:
+      for c,v in enumerate(obj):
+        #logging.info("deep=%s obj=list value=%s value_type=%s(%s)", deep,v,type(v),type(v).__name__)
+        if isinstance(v, (list,dict)):
+          self._search_for_vault(v, deep+1)
+        elif isinstance(v, (YamlVault)):
+          logging.info("++++++ found vault in list: vid=%s plain=%s", v.vault_id, v.plain_text)
+          obj[c]=self._create_new_vault_obj(v)
+    elif isinstance(obj, (YamlVault)):
+      logging.info("++++++++++++++++++ juhu. found vault: vid=%s plain=%s", obj.vault_id, obj.plain_text)
+      obj=self._create_new_vault_obj(obj)
+    else:
+      logging.error("something wrong with obj")
+    return obj
+      
+      
 
   def run(self):
     logging.info("run forest run...")
-    logging.info("about me: %s", self) 
+    logging.info("about me:%s%s", "\n",self) 
     #self.handle_vault_data()
     VaultData.show()
+    for f in self.src:
+      logging.info("loading %s", f)
+      obj=load_yaml(f)
+      logging.info("loaded obj:%s%s", "\n",obj)
+      obj_copy=self._search_for_vault(deepcopy(obj))
+      logging.info("modified obj:%s%s", "\n",obj_copy)
+      dump_yaml(obj_copy,"~/vach_test_file_new.yml")
 
 
     

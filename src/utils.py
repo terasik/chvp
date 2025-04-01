@@ -61,6 +61,7 @@ def dump_yaml(obj, path):
     path: str -> path to file where obj will be written
   return: -
   """
+  logging.info("writing path=%s", path)
   with open(path, 'w') as _fw:
     _fw.write(yaml.dump(obj, Dumper=get_cipher_dumper()))
 
