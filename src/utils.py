@@ -4,7 +4,7 @@ modul with helper functions
 - yaml vault dumpers
 - generating password
 """
-__all__=["dumps_obj", "load_yaml", "dump_yaml", "gen_secrets"]
+__all__=["dumps_obj", "load_yaml", "dump_yaml", "gen_secrets", "ask_vault_id_passwd"]
 
 import logging
 import os
@@ -15,8 +15,6 @@ import yaml
 from .yavault import get_plain_dumper,get_cipher_dumper,get_loader
 
 # decorators
-
-
 def expand_user(f):
   def inner(*args):
     #print("len args %s" % len(args))
@@ -37,11 +35,12 @@ def load_yaml(path):
   return:
     y: dict,list -> loaded yaml object
   """
+  logging.debug("trying to read %s as yaml", path)
   with open(path) as f:
     y=yaml.load(f, Loader=get_loader())  
   return y
    
-def dumps_obj(obj, obj_type="json"):
+def dumps_obj(obj):
   """ return indentet json object
   as string. converting to ascii is disabled
 
@@ -55,13 +54,13 @@ def dumps_obj(obj, obj_type="json"):
 
 @expand_user
 def dump_yaml(obj, path):
-  """ write obj to path as json
+  """ write obj to path as yaml
   params:
     obj: yaml -> yaml object to write
     path: str -> path to file where obj will be written
   return: -
   """
-  logging.info("writing path=%s", path)
+  logging.debug("writing yaml object to %s", path)
   with open(path, 'w') as _fw:
     _fw.write(yaml.dump(obj, Dumper=get_cipher_dumper()))
 
@@ -100,7 +99,17 @@ def ask_vault_id_passwd(vid, old=True, retype=False):
       continue
     p=p.strip()
     if not p:
-      logging.warning("invalid or empty password")
+      logging.warning("invalid or empty password provided")
       continue
     return p
   raise ValueError("invalid or empty password provided")
+
+
+class Context:
+  """ context class for logging
+  and general purpose. for example to mark files
+  that will be written
+  """
+  wfile=""
+  wdir=""
+  found_vault=False

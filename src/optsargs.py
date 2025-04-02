@@ -22,6 +22,7 @@ cliparser.add_argument('src',
 cliparser.add_argument('-i', '--vault-id',
                       action='append',
                       dest='vault_id',
+                      meta="VID",
                       type=str,
                       # TODO: no default,
                       default=["vid"],
@@ -34,7 +35,26 @@ cliparser.add_argument('-g', '--gen-passwd',
                       default=None,
                       const=20,
                       type=int,
+                      meta="LENGTH",
                       choices=list(range(8,64)))
+# readonly modus
+cliparser.add_argument('-r', '--readonly',
+                        action='store_true')
+
+# filename regex
+cliparser.add_argument('-m', '--match-file'
+                        dest='match_file',
+                        meta="REGEX")
+
+# ignore directories 
+cliparser.add_argument('-d', '--ignore-dir',
+                        dest='ignore_dir',
+                        meta="REGEX")
+
+# ignore directories 
+cliparser.add_argument('-f', '--ignore-files',
+                        dest='ignore_dir',
+                        meta="REGEX")
 
 argcomplete.autocomplete(cliparser)
 
