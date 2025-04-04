@@ -22,7 +22,8 @@ cliparser.add_argument('src',
 cliparser.add_argument('-i', '--vault-id',
                       action='append',
                       dest='vault_id',
-                      meta="VID",
+                      metavar='VID',
+                      help='vault ids which password should be changed',
                       type=str,
                       # TODO: no default,
                       default=["vid"],
@@ -32,29 +33,37 @@ cliparser.add_argument('-i', '--vault-id',
 cliparser.add_argument('-g', '--gen-passwd',
                       dest='gen_passwd',
                       nargs='?',
+                      help='generate passwords for new vault ids.\nif no LENGTH ios provided use default length',
                       default=None,
                       const=20,
                       type=int,
-                      meta="LENGTH",
+                      metavar="LENGTH",
                       choices=list(range(8,64)))
 # readonly modus
 cliparser.add_argument('-r', '--readonly',
+                        help='show only files and variables that will be changed',
                         action='store_true')
 
 # filename regex
-cliparser.add_argument('-m', '--match-file'
+cliparser.add_argument('-m', '--match-file',
+                        help='handle only files that match REGEX',
                         dest='match_file',
-                        meta="REGEX")
+                        default='.+',
+                        metavar="REGEX")
 
 # ignore directories 
 cliparser.add_argument('-d', '--ignore-dir',
                         dest='ignore_dir',
-                        meta="REGEX")
+                        help='ignore directories that match REGEX',
+                        default='/?.git/?',
+                        metavar="REGEX")
 
-# ignore directories 
+# ignore files
 cliparser.add_argument('-f', '--ignore-files',
                         dest='ignore_dir',
-                        meta="REGEX")
+                        help='ignore files that match REGEX',
+                        default=None,
+                        metavar="REGEX")
 
 argcomplete.autocomplete(cliparser)
 
