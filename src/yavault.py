@@ -28,7 +28,7 @@ class VaultData:
   data_new={"vid": "new"}
   
   @classmethod
-  def show(cls):
+  def _show(cls):
     print("vault data old: %s" % cls.data)
     print("vault data new: %s" % cls.data_new)
   

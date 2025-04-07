@@ -80,14 +80,41 @@ class ChangeVaultPasswd():
     else:
       logging.error("something wrong with obj")
     return obj
+
       
+  def _search_for_vault_2(self, obj, deep=0):
+    """ searching recursiv in obj for vaults
+        variant 2
+    """
+    if type(obj)==dict:
+      _itr=obj.items():
+    elif type(obj)==list:
+      _itr=enumerate(obj):
+        #logging.info("deep=%s obj=dict key=%s value=%s value_type=%s(%s)", deep,k,v,type(v),type(v).__name__)
+        if isinstance(v, (list,dict)):
+          self._search_for_vault(v, deep+1)
+        elif isinstance(v, (YamlVault)):
+          logging.info("++++++ found vault in dict: vid=%s plain=%s", v.vault_id, v.plain_text)
+          obj[k]=self._create_new_vault_obj(v)
+        #logging.info("deep=%s obj=list value=%s value_type=%s(%s)", deep,v,type(v),type(v).__name__)
+        if isinstance(v, (list,dict)):
+          self._search_for_vault(v, deep+1)
+        elif isinstance(v, (YamlVault)):
+          logging.info("++++++ found vault in list: vid=%s plain=%s", v.vault_id, v.plain_text)
+          obj[c]=self._create_new_vault_obj(v)
+    elif isinstance(obj, (YamlVault)):
+      logging.info("++++++++++++++++++ juhu. found vault: vid=%s plain=%s", obj.vault_id, obj.plain_text)
+      obj=self._create_new_vault_obj(obj)
+    else:
+      logging.error("something wrong with obj")
+    return obj
       
 
   def run(self):
     logging.info("run forest run...")
     logging.info("about me:%s%s", "\n",self) 
     #self.handle_vault_data()
-    VaultData.show()
+    VaultData._show()
     for f in self.src:
       logging.info("loading %s", f)
       obj=load_yaml(f)

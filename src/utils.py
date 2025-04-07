@@ -13,6 +13,7 @@ import secrets
 from getpass import getpass
 import yaml
 from .yavault import get_plain_dumper,get_cipher_dumper,get_loader
+from .defs import VachDefs
 
 # decorators
 def expand_user(f):
@@ -70,7 +71,7 @@ def gen_secrets(**kwargs):
   """
   secs=[]
   token=kwargs.get("token", False)
-  length=kwargs.get("length", 20)
+  length=kwargs.get("length", VachDefs.passwd_length)
   count=kwargs.get("count", 1)
   for _ in range(count):
     if not token:
@@ -105,11 +106,30 @@ def ask_vault_id_passwd(vid, old=True, retype=False):
   raise ValueError("invalid or empty password provided")
 
 
-class Context:
+class VachContext:
   """ context class for logging
-  and general purpose. for example to mark files
-  that will be written
+  and general purpose.
   """
-  wfile=""
-  wdir=""
-  found_vault=False
+  wpath=""
+
+class VachFile:
+  def __init__(self, path):
+    self.path=path
+    self.vault_vars=[]
+    self.written=False
+    self.error=False
+    self.skipped=False
+
+class VachSummary:
+  """ class with all informations about
+  what file and what variables was written
+  """
+  def __init__(self):
+    self.all_files=[]
+    self.cur_file=None
+
+  def add_new_file(self,path)
+    if self.cur_file is not None:
+      self.all_files.append(self.cur_file)
+    self.cur_file=VachFile(path)
+
