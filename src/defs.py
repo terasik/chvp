@@ -14,6 +14,8 @@ CFG_SEARCH_DIRS=('.', os.path.expanduser('~'), CFG_DIR)
 class VachDefs:
   """ class with default config values
   """
+  wpath=['.']
+  vault_id=['vid']
   passwd_length=20
   passwd_length_min=8
   passwd_length_max=64

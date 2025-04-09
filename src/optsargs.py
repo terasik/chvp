@@ -17,10 +17,11 @@ cliparser=argparse.ArgumentParser(
                     epilog='be carefull with this prog. make backup bevor changing or track your changes with some version control prog')
 
 # positional arguments files or directories
-cliparser.add_argument('src',
+cliparser.add_argument('wpath',
                       nargs='*',
+                      metavar="PATH",
                       # TODO. default=['.']
-                      default=['~/vach_test_file.yml'])
+                      default=VachDefs.wpath)
 # provide vault ids
 cliparser.add_argument('-i', '--vault-id',
                       action='append',
@@ -29,7 +30,7 @@ cliparser.add_argument('-i', '--vault-id',
                       help='vault ids which password should be changed',
                       type=str,
                       # TODO: no default,
-                      default=["vid"],
+                      default=VachDefs.vault_id,
                       # TODO: required=True
                       required=False)
 # generate password ?

@@ -110,11 +110,13 @@ class VachContext:
   """ context class for logging
   and general purpose.
   """
-  wpath=""
+  file=None
 
 class VachFile:
   def __init__(self, path):
-    self.path=path
+    self.path=os.path.abspath(path)
+    self.name=os.path.basename(path)
+    self.directory=os.path.dirname(self.path)
     self.vault_vars=[]
     self.written=False
     self.error=False
@@ -128,8 +130,18 @@ class VachSummary:
     self.all_files=[]
     self.cur_file=None
 
-  def add_new_file(self,path)
+  def __str__(self):
+    s="\n-----------------------------------\n"+\
+      "\n".join([o.path for o in self.all_files])+\
+      "\n-----------------------------------\n"
+    return s
+
+  def add_new_file(self, path=None):
     if self.cur_file is not None:
       self.all_files.append(self.cur_file)
-    self.cur_file=VachFile(path)
+    if path:
+      self.cur_file=VachFile(path)
+      VachContext.file=self.cur_file
+      
+
 
