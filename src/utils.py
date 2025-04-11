@@ -8,6 +8,7 @@ __all__=["dumps_obj", "load_yaml", "dump_yaml", "gen_secrets", "ask_vault_id_pas
 
 import logging
 import os
+import re
 import string
 import secrets
 from getpass import getpass
@@ -120,13 +121,20 @@ class VachFile:
     self.vault_vars=[]
     self.written=False
     self.error=False
-    self.skipped=False
+    self.ignored=False
+
+  def __str__(self):
+    s=f"path={self.path} name={self.name} dir={self.directory} vvars={self.vault_vars} error={self.error} ign={self.ignored}"
+    return s
 
 class VachSummary:
   """ class with all informations about
   what file and what variables was written
   """
   def __init__(self):
+    self.ignored_dirs=set()
+    self.ignored_files=set()
+    self.bad_srcs=set()
     self.all_files=[]
     self.cur_file=None
 
@@ -142,6 +150,36 @@ class VachSummary:
     if path:
       self.cur_file=VachFile(path)
       VachContext.file=self.cur_file
+
+  def ignore_dir(self):
+    if self.cur_file is not None:
+      self.ignored_dirs.add(self.cur_file.directory)
+      self.cur_file.ignored=True
       
+  def ignore_file(self):
+    if self.cur_file is not None:
+      self.ignored_files.add(self.cur_file.path)
+      self.cur_file.ignored=True
 
+  def bad_src(self,src):
+    self.bad_srcs.add(src)
 
+  def vault_var(self, varname):
+    self.cur_file.vault_vars.append(varname)
+
+  def check_dir(self, rgx=""):
+    if rgx:
+      if re.search(rgx,self.cur_file.directory):
+        self.ignore_dir()
+        return True
+    return False
+
+  def check_file(self, rgx=""):
+    if rgx:
+      if re.search(rgx, self.cur_file.name):
+        self.ignore_file()
+        return True
+    return False
+
+  def show_cur(self):
+    logging.info("cur file: %s", self.cur_file)

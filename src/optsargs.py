@@ -51,20 +51,20 @@ cliparser.add_argument('-r', '--readonly',
 # filename regex
 cliparser.add_argument('-m', '--match-file',
                         help='handle only files that match REGEX',
-                        dest='match_file',
+                        dest='match_file_rgx',
                         default=VachDefs.match_file_regex,
                         metavar="REGEX")
 
 # ignore directories 
 cliparser.add_argument('-d', '--ignore-dir',
-                        dest='ignore_dir',
+                        dest='ign_dir_rgx',
                         help='ignore directories that match REGEX',
                         default=VachDefs.ignore_dir_regex,
                         metavar="REGEX")
 
 # ignore files
 cliparser.add_argument('-f', '--ignore-files',
-                        dest='ignore_dir',
+                        dest='ign_file_rgx',
                         help='ignore files that match REGEX',
                         default=VachDefs.ignore_file_regex,
                         metavar="REGEX")

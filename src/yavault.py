@@ -5,6 +5,7 @@ modul for handling ansible vault yaml
 import yaml
 import logging
 from ansible_vault import Vault
+from .excs import VaultError
 
 class VaultError(Exception):
   """ Vault Error """

@@ -7,6 +7,7 @@ from copy import deepcopy
 from .optsargs import cliparser
 from .yavault import VaultData, YamlVault
 from .utils import ask_vault_id_passwd, gen_secrets, load_yaml, dump_yaml, VachSummary
+from .excs import *
 
 summary=VachSummary()
 
@@ -67,7 +68,7 @@ class ChangeVaultPasswd():
         if isinstance(v, (list,dict)):
           self._search_for_vault(v, deep+1)
         elif isinstance(v, (YamlVault)):
-          logging.info("++++++ found vault in dict: vid=%s plain=%s", v.vault_id, v.plain_text)
+          logging.info("++++ found vault in dict: vid=%s plain=%s", v.vault_id, v.plain_text)
           obj[k]=self._create_new_vault_obj(v)
     elif type(obj)==list:
       for c,v in enumerate(obj):
@@ -75,18 +76,30 @@ class ChangeVaultPasswd():
         if isinstance(v, (list,dict)):
           self._search_for_vault(v, deep+1)
         elif isinstance(v, (YamlVault)):
-          logging.info("++++++ found vault in list: vid=%s plain=%s", v.vault_id, v.plain_text)
+          logging.info("++++ found vault in list: vid=%s plain=%s", v.vault_id, v.plain_text)
           obj[c]=self._create_new_vault_obj(v)
     elif isinstance(obj, (YamlVault)):
-      logging.info("++++++++++++++++++ juhu. found vault: vid=%s plain=%s", obj.vault_id, obj.plain_text)
+      logging.info("++++ juhu. found vault: vid=%s plain=%s", obj.vault_id, obj.plain_text)
       obj=self._create_new_vault_obj(obj)
     else:
-      logging.error("something wrong with obj")
+      #logging.error("something wrong with obj")
+      raise NoVaultYamlError("loaded object is neigher dict,list or yamlvault")
     return obj
 
-  def handle_file(self, file):
-    logging.info("file: %s", file)
-    summary.add_new_file(file)
+  def handle_file(self):
+    logging.info("handle path: %s", summary.cur_file.path)
+    # ignore check
+    if summary.check_dir(self.ign_dir_rgx):
+      return
+    if summary.check_file(self.ign_file_rgx):
+      return
+    #try:
+    #  obj=load_yaml(f)
+    #  logging.info("loaded obj:%s%s", "\n",obj)
+    #  obj_copy=self._search_for_vault(deepcopy(obj))
+    #  logging.info("modified obj:%s%s", "\n",obj_copy)
+      #dump_yaml(obj_copy,"~/vach_test_file_new.yml")
+
 
   def run(self):
     logging.info("run forest run...")
@@ -96,24 +109,25 @@ class ChangeVaultPasswd():
     for src in self.wpath:
       if os.path.isfile(src):
         logging.info("try to handle file %s", src)
-        self.handle_file(src)
+        summary.add_new_file(src)
+        self.handle_file()
+        summary.show_cur()
       elif os.path.isdir(src):
         logging.info("try to handle directory %s", src)
         for walk_dir,_,filenames in os.walk(src):
           for filename in filenames:
-            self.handle_file(walk_dir+"/"+filename)
+            summary.add_new_file(walk_dir+"/"+filename)
+            self.handle_file()
+            summary.show_cur()
       else:
-        logging.error("neither file nor directory was provided")
+        logging.error("%s is neither file nor directory was provided", src)
+        summary.bad_src(src)
+        continue
     summary.add_new_file()
     print(summary)
     
         
 
-      #obj=load_yaml(f)
-      #logging.info("loaded obj:%s%s", "\n",obj)
-      #obj_copy=self._search_for_vault(deepcopy(obj))
-      #logging.info("modified obj:%s%s", "\n",obj_copy)
-      #dump_yaml(obj_copy,"~/vach_test_file_new.yml")
 
 
     
