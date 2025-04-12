@@ -120,11 +120,11 @@ class VachFile:
     self.directory=os.path.dirname(self.path)
     self.vault_vars=[]
     self.written=False
-    self.error=False
+    self.errors=[]
     self.ignored=False
 
   def __str__(self):
-    s=f"path={self.path} name={self.name} dir={self.directory} vvars={self.vault_vars} error={self.error} ign={self.ignored}"
+    s=f"path={self.path} vault_vars={self.vault_vars} errors={self.errors} ignored={self.ignored}"
     return s
 
 class VachSummary:
@@ -183,3 +183,10 @@ class VachSummary:
 
   def show_cur(self):
     logging.info("cur file: %s", self.cur_file)
+
+  def show_gen(self, only_count=True):
+    logging.info("cnt: all_files=%s, ignored_dirs=%s, ignored_files=%s, bad_src=%s",
+                    len(self.all_files),
+                    len(self.ignored_dirs), 
+                    len(self.ignored_files), 
+                    len(self.bad_srcs))

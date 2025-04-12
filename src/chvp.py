@@ -103,9 +103,9 @@ class ChangeVaultPasswd():
 
   def run(self):
     logging.info("run forest run...")
-    logging.info("about me:%s%s", "\n",self) 
+    logging.debug("about a girl:%s%s", "\n",self) 
     #self.handle_vault_data()
-    VaultData._show()
+    #VaultData._show()
     for src in self.wpath:
       if os.path.isfile(src):
         logging.info("try to handle file %s", src)
@@ -120,11 +120,12 @@ class ChangeVaultPasswd():
             self.handle_file()
             summary.show_cur()
       else:
-        logging.error("%s is neither file nor directory was provided", src)
+        logging.error("%s doesn't exist", src)
         summary.bad_src(src)
         continue
     summary.add_new_file()
-    print(summary)
+    summary.show_gen()
+    #print(summary)
     
         
 

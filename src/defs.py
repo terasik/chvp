@@ -28,7 +28,7 @@ class VachDefs:
     for k,v in cls.__dict__.items():
       if k.startswith('_'):
         continue
-      logging.info("defs: %s=%s", k, v)
+      logging.debug("defs: %s=%s", k, v)
   
 
 
