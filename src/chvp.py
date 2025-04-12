@@ -59,45 +59,54 @@ class ChangeVaultPasswd():
     return new_vobj
     
 
-  def _search_for_vault(self, obj, deep=0):
+  def _search_for_vault(self, obj, var_path="",deep=0):
     """ searching recursiv in obj for vaults
     """
     if type(obj)==dict:
       for k,v in obj.items():
         #logging.info("deep=%s obj=dict key=%s value=%s value_type=%s(%s)", deep,k,v,type(v),type(v).__name__)
+        new_var_path=f"{var_path}:{k}"
         if isinstance(v, (list,dict)):
-          self._search_for_vault(v, deep+1)
+          self._search_for_vault(v, f"{var_path}:{k}",deep+1)
         elif isinstance(v, (YamlVault)):
-          logging.info("++++ found vault in dict: vid=%s plain=%s", v.vault_id, v.plain_text)
+          logging.info("++++ found vault: vid=%s plain=%s var_path=%s", v.vault_id, v.plain_text, new_var_path)
+          summary.vault_var(new_var_path)
           obj[k]=self._create_new_vault_obj(v)
     elif type(obj)==list:
       for c,v in enumerate(obj):
         #logging.info("deep=%s obj=list value=%s value_type=%s(%s)", deep,v,type(v),type(v).__name__)
+        new_var_path=f"{var_path}[{c}]"
         if isinstance(v, (list,dict)):
-          self._search_for_vault(v, deep+1)
+          self._search_for_vault(v, f"{var_path}[{c}]",deep+1)
         elif isinstance(v, (YamlVault)):
-          logging.info("++++ found vault in list: vid=%s plain=%s", v.vault_id, v.plain_text)
+          logging.info("++++ found vault: vid=%s plain=%s var_path=%s", v.vault_id, v.plain_text, new_var_path)
+          summary.vault_var(new_var_path)
           obj[c]=self._create_new_vault_obj(v)
     elif isinstance(obj, (YamlVault)):
-      logging.info("++++ juhu. found vault: vid=%s plain=%s", obj.vault_id, obj.plain_text)
+      logging.info("++++ found lonely vault: vid=%s plain=%s", obj.vault_id, obj.plain_text)
       obj=self._create_new_vault_obj(obj)
     else:
       #logging.error("something wrong with obj")
-      raise NoVaultYamlError("loaded object is neigher dict,list or yamlvault")
+      raise TypeError("loaded object is neigher dict,list or yamlvault")
     return obj
 
   def handle_file(self):
-    logging.info("handle path: %s", summary.cur_file.path)
+    cur_path=summary.cur_file.path
+    logging.info("handle path: %s", cur_path)
     # ignore check
     if summary.check_dir(self.ign_dir_rgx):
       return
     if summary.check_file(self.ign_file_rgx):
       return
-    #try:
-    #  obj=load_yaml(f)
-    #  logging.info("loaded obj:%s%s", "\n",obj)
-    #  obj_copy=self._search_for_vault(deepcopy(obj))
-    #  logging.info("modified obj:%s%s", "\n",obj_copy)
+    try:
+      logging.debug("try to load %s as yaml", cur_path)
+      obj=load_yaml(cur_path)
+      logging.debug("loaded obj:%s%s", "\n",obj)
+      obj_copy=self._search_for_vault(deepcopy(obj))
+      logging.debug("modified obj:%s%s", "\n",obj_copy)
+    except Exception as exc:
+      logging.error("problems with %s: %s", cur_path, exc)
+      summary.error(exc)
       #dump_yaml(obj_copy,"~/vach_test_file_new.yml")
 
 
@@ -114,15 +123,18 @@ class ChangeVaultPasswd():
         summary.show_cur()
       elif os.path.isdir(src):
         logging.info("try to handle directory %s", src)
-        for walk_dir,_,filenames in os.walk(src):
-          for filename in filenames:
-            summary.add_new_file(walk_dir+"/"+filename)
-            self.handle_file()
-            summary.show_cur()
+        try:
+          for walk_dir,_,filenames in os.walk(src):
+            for filename in filenames:
+              summary.add_new_file(walk_dir+"/"+filename)
+              self.handle_file()
+              summary.show_cur()
+        except:
+          logging.error("can't walk through %s", src)
+          summary.bad_src(src)
       else:
         logging.error("%s doesn't exist", src)
         summary.bad_src(src)
-        continue
     summary.add_new_file()
     summary.show_gen()
     #print(summary)

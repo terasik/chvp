@@ -151,6 +151,10 @@ class VachSummary:
       self.cur_file=VachFile(path)
       VachContext.file=self.cur_file
 
+  def error(self, exc):
+    exc_name=type(exc).__name__
+    self.cur_file.errors.append((exc_name, exc))
+
   def ignore_dir(self):
     if self.cur_file is not None:
       self.ignored_dirs.add(self.cur_file.directory)

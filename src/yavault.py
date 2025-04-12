@@ -127,12 +127,13 @@ class YamlVault:
       vault=Vault(self._passwd[vault_id])
       try:
         dec_data=vault.load(cipher_text)
-      except:
+      except Exception as exc:
+        logging.warning("ansible exc: %s %s", type(exc).__name__, exc)
         continue
       else:
         self._vault_id=vault_id
         return dec_data
-    raise VaultError("decryption with all possible secrets failed")
+    raise VaultError("decryption of vault failed")
 
   def encode(self, plain_text):
     """ encode plain text
