@@ -123,17 +123,19 @@ class YamlVault:
     - try to decode with all possible passwords
     - raises VaultError if decode fails
     """
+    ansi_excs=set()
     for vault_id in self._passwd:
       vault=Vault(self._passwd[vault_id])
       try:
         dec_data=vault.load(cipher_text)
       except Exception as exc:
-        logging.warning("ansible exc: %s %s", type(exc).__name__, exc)
+        #logging.warning("ansible exc: %s %s", type(exc).__name__, exc)
+        ansi_excs.add(exc)
         continue
       else:
         self._vault_id=vault_id
         return dec_data
-    raise VaultError("decryption of vault failed")
+    raise VaultError("decryption of vault failed. exceptions derived from ansible: %s" % ansi_excs)
 
   def encode(self, plain_text):
     """ encode plain text

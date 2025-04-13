@@ -124,7 +124,14 @@ class VachFile:
     self.ignored=False
 
   def __str__(self):
-    s=f"path={self.path} vault_vars={self.vault_vars} errors={self.errors} ignored={self.ignored}"
+    if self.ignored:
+      s=f"path={self.path} IGNORED={self.ignored}"
+    elif self.errors:
+      s=f"path={self.path} MAYDAY={self.errors}"
+    elif self.vault_vars:
+      s=f"path={self.path} VAULT={self.vault_vars}"
+    else:
+      s=f"path={self.path} UNKNOWN PLEASURES"
     return s
 
 class VachSummary:
@@ -137,6 +144,10 @@ class VachSummary:
     self.bad_srcs=set()
     self.all_files=[]
     self.cur_file=None
+    self.cnt_errors=0
+    self.cnt_ignored=0
+    self.cnt_success=0
+    self.cnt_vaults=0
 
   def __str__(self):
     s="\n-----------------------------------\n"+\
@@ -145,30 +156,45 @@ class VachSummary:
     return s
 
   def add_new_file(self, path=None):
-    if self.cur_file is not None:
-      self.all_files.append(self.cur_file)
+    #if self.cur_file is not None:
+    #  self.all_files.append(self.cur_file)
+    self.push()
     if path:
       self.cur_file=VachFile(path)
       VachContext.file=self.cur_file
 
+  def push(self):
+    if self.cur_file is not None:
+      self.all_files.append(self.cur_file)
+      self.cur_file=None
+    
+
+  def success(self):
+    self.cnt_success+=1
+
   def error(self, exc):
     exc_name=type(exc).__name__
     self.cur_file.errors.append((exc_name, exc))
+    self.cnt_errors+=1
 
   def ignore_dir(self):
     if self.cur_file is not None:
       self.ignored_dirs.add(self.cur_file.directory)
       self.cur_file.ignored=True
+      self.cnt_ignored+=1
       
   def ignore_file(self):
     if self.cur_file is not None:
       self.ignored_files.add(self.cur_file.path)
       self.cur_file.ignored=True
+      self.cnt_ignored+=1
 
   def bad_src(self,src):
     self.bad_srcs.add(src)
 
   def vault_var(self, varname):
+    if not len(self.cur_file.vault_vars):
+      self.cnt_vaults+=1
     self.cur_file.vault_vars.append(varname)
 
   def check_dir(self, rgx=""):
@@ -185,12 +211,34 @@ class VachSummary:
         return True
     return False
 
+  def match_file(self, rgx=""):
+    if rgx:
+      if re.search(rgx, self.cur_file.name):
+        return True
+    self.ignore_file()
+    return False
+
   def show_cur(self):
     logging.info("cur file: %s", self.cur_file)
 
-  def show_gen(self, only_count=True):
-    logging.info("cnt: all_files=%s, ignored_dirs=%s, ignored_files=%s, bad_src=%s",
-                    len(self.all_files),
-                    len(self.ignored_dirs), 
-                    len(self.ignored_files), 
-                    len(self.bad_srcs))
+  def summary(self, write_to_file=False ):
+    #logging.info("summary: all_files=%s, success=%s, files_with_error=%s, all_ignored=%s, ignored_dirs=%s, ignored_filenames=%s, bad_src=%s",
+    #                len(self.all_files),
+    #                self.cnt_success,
+    #                self.cnt_errors,
+    #                self.cnt_ignored,
+    #                len(self.ignored_dirs), 
+    #                len(self.ignored_files), 
+    #                len(self.bad_srcs))
+    logging.info("all files            : %s", len(self.all_files))
+    logging.info("succes files count   : %s", self.cnt_success)
+    logging.info("files with vault vars: %s", self.cnt_vaults)
+    if self.cnt_ignored:
+      logging.warning("ignored all        : %s", self.cnt_ignored)
+      logging.warning("ignored directories: %s", len(self.ignored_dirs))
+      logging.warning("ignored files      : %s", len(self.ignored_files))
+    if self.cnt_errors:
+      logging.error("files with errors  : %s", self.cnt_errors)
+    if len(self.bad_srcs):
+      logging.error("bad positional srcs: %s", len(self.bad_srcs))
+    #logging.info("summary 2: files_with_errors=%s,
