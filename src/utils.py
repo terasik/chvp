@@ -12,6 +12,7 @@ import re
 import string
 import secrets
 from getpass import getpass
+from datetime import datetime
 import yaml
 from .yavault import get_plain_dumper,get_cipher_dumper,get_loader
 from .defs import VachDefs
@@ -221,15 +222,22 @@ class VachSummary:
   def show_cur(self):
     logging.info("cur file: %s", self.cur_file)
 
+  def write(self):
+    t=datetime.strftime(datetime.now(),"%Y%m%d%H%M%S")
+    summary_file=f"{os.path.expanduser(~)}/vach_summary_{t}.json"
+    logging.info("writing summary file: %s", summary_file)
+    smry={"general": {}, "files": []}
+    smry['general'].update({'all': len(self.all_files),
+                            'success': self.cnt_success,
+                            'vault': self.cnt_vaults,
+                            'ignored': self.cnt_ignored,
+                            'error': self.cnt_errors})
+    for o in self.all_files:
+      smry['all'].append({'path': o.path,
+                          '
+  
+
   def summary(self, write_to_file=False ):
-    #logging.info("summary: all_files=%s, success=%s, files_with_error=%s, all_ignored=%s, ignored_dirs=%s, ignored_filenames=%s, bad_src=%s",
-    #                len(self.all_files),
-    #                self.cnt_success,
-    #                self.cnt_errors,
-    #                self.cnt_ignored,
-    #                len(self.ignored_dirs), 
-    #                len(self.ignored_files), 
-    #                len(self.bad_srcs))
     logging.info("all files            : %s", len(self.all_files))
     logging.info("succes files count   : %s", self.cnt_success)
     logging.info("files with vault vars: %s", self.cnt_vaults)
