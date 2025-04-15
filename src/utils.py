@@ -11,6 +11,7 @@ import os
 import re
 import string
 import secrets
+import json
 from getpass import getpass
 from datetime import datetime
 import yaml
@@ -224,17 +225,24 @@ class VachSummary:
 
   def write(self):
     t=datetime.strftime(datetime.now(),"%Y%m%d%H%M%S")
-    summary_file=f"{os.path.expanduser(~)}/vach_summary_{t}.json"
+    summary_file=f"{os.path.expanduser('~')}/vach_summary_{t}.json"
     logging.info("writing summary file: %s", summary_file)
     smry={"general": {}, "files": []}
     smry['general'].update({'all': len(self.all_files),
                             'success': self.cnt_success,
                             'vault': self.cnt_vaults,
                             'ignored': self.cnt_ignored,
+                            'len_bad_srcs': len(self.bad_srcs),
+                            'bad_srcs': list(self.bad_srcs),
                             'error': self.cnt_errors})
     for o in self.all_files:
-      smry['all'].append({'path': o.path,
-                          '
+      smry['files'].append({'path': o.path,
+                          'ignored': o.ignored,
+                          'errors': [str(x) for x in o.errors],
+                          'vault_vars': list(o.vault_vars)})
+    with open(summary_file, "w") as fw:
+      json.dump(smry, fw, indent=2, ensure_ascii=False)
+ 
   
 
   def summary(self, write_to_file=False ):

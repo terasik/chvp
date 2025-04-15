@@ -142,6 +142,7 @@ class ChangeVaultPasswd():
     #summary.add_new_file()
     summary.push()
     summary.summary()
+    summary.write()
     #print(summary)
     
         
