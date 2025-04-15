@@ -8,7 +8,7 @@ chvp [-g [LENGTH]] -i VAULT_ID [VAULT_ID ..]
 import argparse
 import argcomplete
 #from .yavault import VaultData
-from .defs import VachDefs
+from .defs import VachDefs, PASSWD_LEN_MIN, PASSWD_LEN_MAX
 
 cliparser=argparse.ArgumentParser(
                     prog='chvp',
@@ -42,10 +42,14 @@ cliparser.add_argument('-g', '--gen-passwd',
                       const=VachDefs.passwd_length,
                       type=int,
                       metavar="LENGTH",
-                      choices=list(range(VachDefs.passwd_length_min, VachDefs.passwd_length_max)))
+                      choices=list(range(PASSWD_LEN_MIN, PASSWD_LEN_MAX)))
 # readonly modus
 cliparser.add_argument('-r', '--readonly',
                         help='show only files and variables that will be changed',
+                        action='store_true')
+
+cliparser.add_argument('--tb',
+                        help='show traceback on exceptions',
                         action='store_true')
 
 # filename regex

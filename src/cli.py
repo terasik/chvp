@@ -16,4 +16,5 @@ def main():
     a.run()
   except Exception as exc:
     logging.error("ups exception a la %s with message: %s", type(exc).__name__, exc)
-    print(traceback.format_exc())
+    if a.tb:
+      print(traceback.format_exc())
