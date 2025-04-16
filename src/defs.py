@@ -3,14 +3,17 @@ import logging
 import os
 import re
 import configparser
+import sys
 
 # config file
 CFG_DEFAULT_SECTION='main'
 CFG_FILE='vach.cfg'
 CFG_DIR=os.path.expanduser('~/.vach/')
 CFG_SEARCH_DIRS=('.', os.path.expanduser('~'), CFG_DIR)
+# paswd
 PASSWD_LEN_MIN=12
 PASSWD_LEN_MAX=64
+PASSWD_LEN_DEF=20
 
 
 class VachDefs:
@@ -18,7 +21,7 @@ class VachDefs:
   """
   wpath=['.']
   vault_id=['vid']
-  passwd_length=20
+  passwd_length=PASSWD_LEN_DEF
   match_file_regex='.+'
   ignore_dir_regex='/?\.git/?'
   ignore_file_regex=None
@@ -28,14 +31,16 @@ class VachDefs:
     for k,v in cls.__dict__.items():
       if k.startswith('_') :
         continue
-      logging.debug("defs: %s=%s", k, v)
+      logging.info("defs: %s=%s", k, v)
 
   @classmethod
   def _check_wpath(cls, value):
     logging.info("wpath config check..")
-    cls.wpath=list(set([p for p in re.split(',\s*', value) if p]))
+    cls.wpath=list(set([os.path.expanduser(p) for p in re.split(',\s*', value) if p]))
     if not cls.wpath:
-      logging.warning("wpath value in config is empty or make no sense")
+      logging.error("wpath value in config is empty or make no sense")
+      return 1
+    return 0
 
 
   @classmethod
@@ -43,18 +48,27 @@ class VachDefs:
     logging.info("vault_id config check..")
     cls.vault_id=list(set([v for v in re.split(',\s*', value) if v]))
     if not cls.vault_id:
-      logging.warning("vault_id value in config is empty or make no sense")
+      logging.error("vault_id value in config is empty or make no sense")
+      return 1
+    return 0
 
   @classmethod
   def _check_passwd_length(cls, value):
+    logging.info("passwd_length config check..")
     try:
       value=int(value)
     except:
-      raise TypeError("can't cast passwd_length from config to int. please provide only integers (%s..%s)" % (PASSWD_LEN_MIN,PASSWD_LEN_MAX))
+      logging.error("can't cast passwd_length from config to int. please provide only integers (%s..%s)",PASSWD_LEN_MIN,PASSWD_LEN_MAX)
+      return 1
+      #raise TypeError("can't cast passwd_length from config to int. please provide only integers (%s..%s)" % (PASSWD_LEN_MIN,PASSWD_LEN_MAX))
     if isinstance(value, (int)):
       if value<PASSWD_LEN_MIN or value>PASSWD_LEN_MAX:
-        #logging.error("wrong passwd_length in config. please provide only integers %s..%s",PASSWD_LEN_MIN,PASSWD_LEN_MAX)
-        raise ValueError("passwd_length in config is wrong. please provide only integers %s..%s" % (PASSWD_LEN_MIN,PASSWD_LEN_MAX))
+        logging.error("wrong passwd_length in config. please provide only integers %s..%s",PASSWD_LEN_MIN,PASSWD_LEN_MAX)
+        #logging.warning("default value will 
+        #raise ValueError("passwd_length in config is wrong. please provide only integers %s..%s" % (PASSWD_LEN_MIN,PASSWD_LEN_MAX))
+        return 1
+    return 0
+    
     
     
   
@@ -83,7 +97,9 @@ def read_vach_cfg():
   for k,v in cfg.items(def_sec):
     if hasattr(VachDefs, f"_check_{k}"):
       check_func=getattr(VachDefs, f"_check_{k}")
-      check_func(v)
+      if check_func(v):
+        logging.error("some trouble with your config values in %s",ff)
+        sys.exit(1)
     else: 
       setattr(VachDefs, k, v)
   VachDefs._show()
