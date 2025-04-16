@@ -31,6 +31,15 @@ def expand_user(f):
     return f(*new_args)
   return inner
 
+def cur_file_not_none(f):
+  def inner(*args):
+    inst=args[0]
+    if inst.cur_file is not None:
+      return f(*args)
+    logging.debug("entering the void with yout cur_file in function '%s'", f.__name__)
+    return
+  return inner
+
 @expand_user
 def load_yaml(path):
   """ load yaml file
@@ -124,16 +133,17 @@ class VachFile:
     self.written=False
     self.errors=[]
     self.ignored=False
+    self.succeeded=False
 
   def __str__(self):
     if self.ignored:
-      s=f"path={self.path} IGNORED={self.ignored}"
+      s=f"IGNORED={self.ignored} path={self.path}"
     elif self.errors:
-      s=f"path={self.path} MAYDAY={self.errors}"
+      s=f"MAYDAY={self.errors} path={self.path}"
     elif self.vault_vars:
-      s=f"path={self.path} VAULT={self.vault_vars}"
+      s=f"VAULT={self.vault_vars} path={self.path}"
     else:
-      s=f"path={self.path} UNKNOWN PLEASURES"
+      s=f"UNKNOWN PLEASURES path={self.path}"
     return s
 
 class VachSummary:
@@ -150,6 +160,7 @@ class VachSummary:
     self.cnt_ignored=0
     self.cnt_success=0
     self.cnt_vaults=0
+    self.cnt_written=0
 
   def __str__(self):
     s="\n-----------------------------------\n"+\
@@ -165,40 +176,52 @@ class VachSummary:
       self.cur_file=VachFile(path)
       VachContext.file=self.cur_file
 
-  def push(self):
-    if self.cur_file is not None:
-      self.all_files.append(self.cur_file)
-      self.cur_file=None
-    
+  @cur_file_not_none
+  def written(self):
+    self.cnt_written+=1
+    self.cur_file.written=True
 
+  @cur_file_not_none
+  def push(self):
+    #if self.cur_file is not None:
+    self.all_files.append(self.cur_file)
+    self.cur_file=None
+
+  @cur_file_not_none
   def success(self):
     self.cnt_success+=1
+    self.cur_file.succeeded=True
 
+  @cur_file_not_none
   def error(self, exc):
     exc_name=type(exc).__name__
     self.cur_file.errors.append((exc_name, exc))
     self.cnt_errors+=1
 
+  @cur_file_not_none
   def ignore_dir(self):
-    if self.cur_file is not None:
-      self.ignored_dirs.add(self.cur_file.directory)
-      self.cur_file.ignored=True
-      self.cnt_ignored+=1
+    #if self.cur_file is not None:
+    self.ignored_dirs.add(self.cur_file.directory)
+    self.cur_file.ignored=True
+    self.cnt_ignored+=1
       
+  @cur_file_not_none
   def ignore_file(self):
-    if self.cur_file is not None:
-      self.ignored_files.add(self.cur_file.path)
-      self.cur_file.ignored=True
-      self.cnt_ignored+=1
+    #if self.cur_file is not None:
+    self.ignored_files.add(self.cur_file.path)
+    self.cur_file.ignored=True
+    self.cnt_ignored+=1
 
   def bad_src(self,src):
     self.bad_srcs.add(src)
 
+  @cur_file_not_none
   def vault_var(self, varname):
     if not len(self.cur_file.vault_vars):
       self.cnt_vaults+=1
     self.cur_file.vault_vars.append(varname)
 
+  @cur_file_not_none
   def check_dir(self, rgx=""):
     if rgx:
       if re.search(rgx,self.cur_file.directory):
@@ -206,6 +229,7 @@ class VachSummary:
         return True
     return False
 
+  @cur_file_not_none
   def check_file(self, rgx=""):
     if rgx:
       if re.search(rgx, self.cur_file.name):
@@ -213,13 +237,14 @@ class VachSummary:
         return True
     return False
 
+  @cur_file_not_none
   def match_file(self, rgx=""):
     if rgx:
       if re.search(rgx, self.cur_file.name):
         return True
     self.ignore_file()
     return False
-
+  
   def show_cur(self):
     logging.info("cur file: %s", self.cur_file)
 
@@ -231,12 +256,15 @@ class VachSummary:
     smry['general'].update({'all': len(self.all_files),
                             'success': self.cnt_success,
                             'vault': self.cnt_vaults,
+                            'written': self.cnt_written,
                             'ignored': self.cnt_ignored,
                             'len_bad_srcs': len(self.bad_srcs),
                             'bad_srcs': list(self.bad_srcs),
                             'error': self.cnt_errors})
     for o in self.all_files:
       smry['files'].append({'path': o.path,
+                          'succeeded': o.succeeded,
+                          'written': o.written,
                           'ignored': o.ignored,
                           'errors': [str(x) for x in o.errors],
                           'vault_vars': list(o.vault_vars)})
@@ -249,6 +277,7 @@ class VachSummary:
     logging.info("all files            : %s", len(self.all_files))
     logging.info("succes files count   : %s", self.cnt_success)
     logging.info("files with vault vars: %s", self.cnt_vaults)
+    logging.info("files written        : %s", self.cnt_written)
     if self.cnt_ignored:
       logging.warning("ignored all        : %s", self.cnt_ignored)
       logging.warning("ignored directories: %s", len(self.ignored_dirs))

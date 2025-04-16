@@ -44,8 +44,8 @@ cliparser.add_argument('-g', '--gen-passwd',
                       metavar="LENGTH",
                       choices=list(range(PASSWD_LEN_MIN, PASSWD_LEN_MAX)))
 # readonly modus
-cliparser.add_argument('-r', '--readonly',
-                        help='show only files and variables that will be changed',
+cliparser.add_argument('-n', '--no-dry',
+                        help='no dry. files will be really written',
                         action='store_true')
 
 cliparser.add_argument('--tb',

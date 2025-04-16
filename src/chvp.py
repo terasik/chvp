@@ -106,7 +106,11 @@ class ChangeVaultPasswd():
       logging.debug("loaded obj:%s%s", "\n",obj)
       obj_copy=self._search_for_vault(deepcopy(obj))
       logging.debug("modified obj:%s%s", "\n",obj_copy)
-      #dump_yaml(obj_copy,"~/vach_test_file_new.yml")
+      if self.no_dry:
+        if summary.cur_file.vault_vars:
+          logging.info("writing file with vault vars: %s",cur_path)
+          dump_yaml(obj_copy,cur_path)
+          summary.written()
     except Exception as exc:
       logging.error("problems with %s: %s", cur_path, exc)
       summary.error(exc)
@@ -144,10 +148,3 @@ class ChangeVaultPasswd():
     summary.summary()
     summary.write()
     #print(summary)
-    
-        
-
-
-
-    
-    

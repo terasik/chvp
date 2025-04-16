@@ -42,7 +42,6 @@ class VachDefs:
       return 1
     return 0
 
-
   @classmethod
   def _check_vault_id(cls, value):
     logging.info("vault_id config check..")
@@ -60,19 +59,12 @@ class VachDefs:
     except:
       logging.error("can't cast passwd_length from config to int. please provide only integers (%s..%s)",PASSWD_LEN_MIN,PASSWD_LEN_MAX)
       return 1
-      #raise TypeError("can't cast passwd_length from config to int. please provide only integers (%s..%s)" % (PASSWD_LEN_MIN,PASSWD_LEN_MAX))
     if isinstance(value, (int)):
       if value<PASSWD_LEN_MIN or value>PASSWD_LEN_MAX:
         logging.error("wrong passwd_length in config. please provide only integers %s..%s",PASSWD_LEN_MIN,PASSWD_LEN_MAX)
-        #logging.warning("default value will 
-        #raise ValueError("passwd_length in config is wrong. please provide only integers %s..%s" % (PASSWD_LEN_MIN,PASSWD_LEN_MAX))
         return 1
     return 0
     
-    
-    
-  
-
 
 def read_vach_cfg():
   """ read vach config file
