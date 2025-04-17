@@ -1,17 +1,17 @@
 """
 parse command line arguments
 
-chvp [-g [LENGTH]] -i VAULT_ID [VAULT_ID ..] 
-
 """
 
 import argparse
 import argcomplete
+from importlib.metadata import version
 #from .yavault import VaultData
 from .defs import VachDefs, PASSWD_LEN_MIN, PASSWD_LEN_MAX
 
+
 cliparser=argparse.ArgumentParser(
-                    prog='chvp',
+                    prog='vach',
                     description='change vault password in yaml files with ansible vault strings',
                     formatter_class=argparse.ArgumentDefaultsHelpFormatter,
                     epilog='be carefull with this prog. make backup bevor changing or track your changes with some version control prog')
@@ -43,10 +43,16 @@ cliparser.add_argument('-g', '--gen-passwd',
                       type=int,
                       metavar="LENGTH",
                       choices=list(range(PASSWD_LEN_MIN, PASSWD_LEN_MAX)))
-# readonly modus
+# no dry mode
 cliparser.add_argument('-n', '--no-dry',
-                        help='no dry. files will be really written',
+                        help='no dry mode. files will be really written',
                         action='store_true')
+
+# don't write summary file 
+cliparser.add_argument('--no-sum-file',
+                        help='don\'t write summary json file in $HOME',
+                        action='store_true')
+
 
 cliparser.add_argument('--tb',
                         help='show traceback on exceptions',
@@ -72,6 +78,10 @@ cliparser.add_argument('-f', '--ignore-files',
                         help='ignore files that match REGEX',
                         default=VachDefs.ignore_file_regex,
                         metavar="REGEX")
+
+cliparser.add_argument('-V', '--version', 
+                        action='version',
+                        version=version('vach'))
 
 argcomplete.autocomplete(cliparser)
 

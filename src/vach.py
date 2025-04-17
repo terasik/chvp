@@ -15,7 +15,7 @@ class ChangeVaultPasswd():
   """ class for changing vault passworsi
   """
   def __init__(self):
-    logging.info("start of the starts")
+    logging.debug("start of the starts")
     self.cliargs=cliparser.parse_args()
     self._set_cliargs_to_myself()
 
@@ -28,7 +28,7 @@ class ChangeVaultPasswd():
     for k,v in vars(self.cliargs).items():
       self.__dict__.update({k:v})
 
-  def handle_vault_passwd(self):
+  def read_vault_passwd(self):
     """ read old vault paswords from stdin
     if '-g' option provided generate new vault passwds
     else read new passwords from stdin
@@ -121,7 +121,7 @@ class ChangeVaultPasswd():
   def run(self):
     logging.info("run forest run...")
     logging.debug("about a girl:%s%s", "\n",self) 
-    #self.handle_vault_data()
+    self.read_vault_passwd()
     #VaultData._show()
     for src in self.wpath:
       if os.path.isfile(src):
@@ -146,5 +146,6 @@ class ChangeVaultPasswd():
     #summary.add_new_file()
     summary.push()
     summary.summary()
-    summary.write()
+    if not self.no_sum_file:
+      summary.write()
     #print(summary)

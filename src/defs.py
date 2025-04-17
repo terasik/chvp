@@ -31,11 +31,11 @@ class VachDefs:
     for k,v in cls.__dict__.items():
       if k.startswith('_') :
         continue
-      logging.info("defs: %s=%s", k, v)
+      logging.debug("defs: %s=%s", k, v)
 
   @classmethod
   def _check_wpath(cls, value):
-    logging.info("wpath config check..")
+    logging.debug("wpath config check..")
     cls.wpath=list(set([os.path.expanduser(p) for p in re.split(',\s*', value) if p]))
     if not cls.wpath:
       logging.error("wpath value in config is empty or make no sense")
@@ -44,7 +44,7 @@ class VachDefs:
 
   @classmethod
   def _check_vault_id(cls, value):
-    logging.info("vault_id config check..")
+    logging.debug("vault_id config check..")
     cls.vault_id=list(set([v for v in re.split(',\s*', value) if v]))
     if not cls.vault_id:
       logging.error("vault_id value in config is empty or make no sense")
@@ -53,7 +53,7 @@ class VachDefs:
 
   @classmethod
   def _check_passwd_length(cls, value):
-    logging.info("passwd_length config check..")
+    logging.debug("passwd_length config check..")
     try:
       value=int(value)
     except:
