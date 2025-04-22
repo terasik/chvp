@@ -78,7 +78,7 @@ cliparser.add_argument('-f', '--ignore-files',
                         help='ignore files that match REGEX',
                         default=VachDefs.ignore_file_regex,
                         metavar="REGEX")
-
+# version
 cliparser.add_argument('-V', '--version', 
                         action='version',
                         version=version('vach'))

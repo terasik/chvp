@@ -1,25 +1,43 @@
 # Changing vault passwords
-Project for automatic changing ansible vault passwords in yaml files with ansible vault strings
+Project for automatic changing ansible vault passwords in yaml files with ansible vault strings. Use *vach* script wchich will be automatic installed by:
+```
+pip install vach
+```
 
 # Usage
-changing vault password 
+
 ```
-chvp -i VAULT_ID [VAULT_ID ..] [-g [LENGTH]] [-r] [-m REGEX] [-d REGEX] [--debug] DIR_OR_FILE [DIR_OR_FILE ..]
+vach [-h] [-i VID] [-g [LENGTH]] [-n] [--no-sum-file] [--tb] [-m REGEX] [-d REGEX] [-f REGEX] [-V] [PATH ...]
 ```
 positional arguments:
-- search in multiple *DIR_OR_FILE* for ansible vault strings and change vault passsword. 
+- search in  *PATH* for ansible vault strings and change vault passsword. 
   - Default: *.*. 
-  - python `os.walk` used for recursively file search 
+  - python `os.walk` used for recursively file search in direct
 
 options:
-- *-i* option used to provide VAULT_IDs. 
-  - Option is required. 
-- *-g* option generate new passwords with default length or LENGTH for VAULT_IDs. 
-  - Default: *none* (read new passwords from stdin)
-- *-r* option used for readonly operations and only shows files that will be changed. 
-  - Default: *false*
-- *-m* use for files regex. read/write only filenames matching the REGEX. 
-  - Default: *.+*
-- *-d* ignore directories/files matching REGEX. 
-  - Default: */?\.git/?*
-- *--debug* show also debug statement- *--debug* show also debug statements
+```
+  -h, --help            show this help message and exit
+  -i VID, --vault-id VID
+                        vault ids which password should be changed (default:
+                        ['vid'])
+  -g [LENGTH], --gen-passwd [LENGTH]
+                        generate passwords for new vault ids. if no LENGTH ios
+                        provided use default length (default: None)
+  -n, --no-dry          no dry mode. files will be really written (default:
+                        False)
+  --no-sum-file         don't write summary json file in $HOME (default:
+                        False)
+  --tb                  show traceback on exceptions (default: False)
+  -m REGEX, --match-file REGEX
+                        handle only files that match REGEX (default: .+)
+  -d REGEX, --ignore-dir REGEX
+                        ignore directories that match REGEX (default:
+                        /?\.git/?)
+  -f REGEX, --ignore-files REGEX
+                        ignore files that match REGEX (default: None)
+  -V, --version         show program's version number and exit
+```
+
+# Default values/Konfiguration
+
+

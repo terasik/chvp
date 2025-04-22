@@ -20,6 +20,8 @@ from .defs import VachDefs
 
 # decorators
 def expand_user(f):
+  """ expand user ~ in paths
+  """
   def inner(*args):
     #print("len args %s" % len(args))
     new_args=list(args)
@@ -32,6 +34,10 @@ def expand_user(f):
   return inner
 
 def cur_file_not_none(f):
+  """ used for functions to check
+  for not empty cur_file attribute in 
+  VachSummary class 
+  """
   def inner(*args):
     inst=args[0]
     if inst.cur_file is not None:
@@ -96,7 +102,8 @@ def gen_secrets(**kwargs):
   return secs
 
 def ask_vault_id_passwd(vid, old=True, retype=False):
-  """ function that read vault_id(vid) from stdin
+  """ function to read vault id(s) and passwords  
+  from stdin
   """
   for _ in range(2):
     try:
@@ -125,6 +132,9 @@ class VachContext:
   file=None
 
 class VachFile:
+  """ class to keep all informations
+  about handled files
+  """
   def __init__(self, path):
     self.path=os.path.abspath(path)
     self.name=os.path.basename(path)
@@ -169,8 +179,10 @@ class VachSummary:
     return s
 
   def add_new_file(self, path=None):
-    #if self.cur_file is not None:
-    #  self.all_files.append(self.cur_file)
+    """ add new VachFile object to summary.
+    before new Vachfile obj created, old one (if exists)
+    will be pushed to list 
+    """
     self.push()
     if path:
       self.cur_file=VachFile(path)
@@ -178,51 +190,70 @@ class VachSummary:
 
   @cur_file_not_none
   def written(self):
+    """ increment written count if file was written
+    """
     self.cnt_written+=1
     self.cur_file.written=True
 
   @cur_file_not_none
   def push(self):
-    #if self.cur_file is not None:
+    """ append cutrrent VachFile to list of Vachfiles
+    """
     self.all_files.append(self.cur_file)
     self.cur_file=None
 
   @cur_file_not_none
   def success(self):
+    """ increment succes counter
+    """
     self.cnt_success+=1
     self.cur_file.succeeded=True
 
   @cur_file_not_none
   def error(self, exc):
+    """ increment error counter and save type 
+    and message of exception 
+    """
     exc_name=type(exc).__name__
     self.cur_file.errors.append((exc_name, exc))
     self.cnt_errors+=1
 
   @cur_file_not_none
   def ignore_dir(self):
-    #if self.cur_file is not None:
+    """ increment ignore dir counter
+    and add  dir to list 
+    """
     self.ignored_dirs.add(self.cur_file.directory)
     self.cur_file.ignored=True
     self.cnt_ignored+=1
       
   @cur_file_not_none
   def ignore_file(self):
-    #if self.cur_file is not None:
+    """ increment ignore file counter
+    and add it to list of ignored files
+    """
     self.ignored_files.add(self.cur_file.path)
     self.cur_file.ignored=True
     self.cnt_ignored+=1
 
   def bad_src(self,src):
+    """ add bad positional argument to list
+    """
     self.bad_srcs.add(src)
 
   @cur_file_not_none
   def vault_var(self, varname):
+    """ incremnt files with vault counter
+    andd add all vault vars to list
+    """
     if not len(self.cur_file.vault_vars):
       self.cnt_vaults+=1
     self.cur_file.vault_vars.append(varname)
 
   @cur_file_not_none
   def check_dir(self, rgx=""):
+    """ should dir will be ignored if it match rgx
+    """
     if rgx:
       if re.search(rgx,self.cur_file.directory):
         self.ignore_dir()
@@ -231,6 +262,8 @@ class VachSummary:
 
   @cur_file_not_none
   def check_file(self, rgx=""):
+    """ should file will be ignored if it match rgx
+    """
     if rgx:
       if re.search(rgx, self.cur_file.name):
         self.ignore_file()
@@ -239,6 +272,8 @@ class VachSummary:
 
   @cur_file_not_none
   def match_file(self, rgx=""):
+    """ go on with file if filename match rgx
+    """
     if rgx:
       if re.search(rgx, self.cur_file.name):
         return True
@@ -246,9 +281,14 @@ class VachSummary:
     return False
   
   def show_cur(self):
+    """ show current VachFile object
+    """
     logging.info("cur file: %s", self.cur_file)
 
   def write(self):
+    """ write json summary file
+    in $HOME
+    """
     t=datetime.strftime(datetime.now(),"%Y%m%d%H%M%S")
     summary_file=f"{os.path.expanduser('~')}/vach_summary_{t}.json"
     logging.info("writing summary file: %s", summary_file)
@@ -274,6 +314,8 @@ class VachSummary:
   
 
   def summary(self, write_to_file=False ):
+    """ logg summary
+    """
     logging.info("all files            : %s", len(self.all_files))
     logging.info("succes files count   : %s", self.cnt_success)
     logging.info("files with vault vars: %s", self.cnt_vaults)

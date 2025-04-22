@@ -1,5 +1,5 @@
 """
-modul with main main class
+modul with main class
 """
 import logging
 import os
@@ -9,10 +9,12 @@ from .yavault import VaultData, YamlVault
 from .utils import ask_vault_id_passwd, gen_secrets, load_yaml, dump_yaml, VachSummary
 from .excs import *
 
+# create summary object to save important infos about every file
 summary=VachSummary()
 
 class ChangeVaultPasswd():
-  """ class for changing vault passworsi
+  """ class for changing vault passwords
+  in files with ansible vault values
   """
   def __init__(self):
     logging.debug("start of the starts")
@@ -25,6 +27,9 @@ class ChangeVaultPasswd():
     return "\n".join(l)   
 
   def _set_cliargs_to_myself(self):
+    """ set class attributes from parsed opts
+    with argparse
+    """
     for k,v in vars(self.cliargs).items():
       self.__dict__.update({k:v})
 
@@ -53,7 +58,7 @@ class ChangeVaultPasswd():
         VaultData.data_new.update({vid: p1})
 
   def _create_new_vault_obj(self, old_vobj):
-    """ create new vault from old
+    """ create vault object with new password 
     """
     new_vobj=YamlVault(use_new=True, vault_id=old_vobj.vault_id, plain_text=old_vobj.plain_text)
     return new_vobj
@@ -91,6 +96,11 @@ class ChangeVaultPasswd():
     return obj
 
   def handle_file(self):
+    """ check file (should it be ignored or not)
+    load file as yaml
+    search for vaults in file
+    write file if neccessery
+    """
     cur_path=summary.cur_file.path
     logging.debug("handle path: %s", cur_path)
     # ignore check
@@ -119,6 +129,11 @@ class ChangeVaultPasswd():
 
 
   def run(self):
+    """ go through all files founden in positional src arguments 
+    in self.wpath. walk recursively through src if it is directory
+    add every file to summary
+    write at the end summary file
+    """
     logging.info("run forest run...")
     logging.debug("about a girl:%s%s", "\n",self) 
     self.read_vault_passwd()

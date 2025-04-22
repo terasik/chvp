@@ -1,4 +1,6 @@
-# file with default values
+"""
+module to handle default and config files values
+"""
 import logging
 import os
 import re
@@ -18,6 +20,8 @@ PASSWD_LEN_DEF=20
 
 class VachDefs:
   """ class with default config values
+  implements also funtions for checking 
+  values from config files
   """
   wpath=['.']
   vault_id=['vid']
@@ -35,6 +39,9 @@ class VachDefs:
 
   @classmethod
   def _check_wpath(cls, value):
+    """ build working path list
+    from comma separated string
+    """
     logging.debug("wpath config check..")
     cls.wpath=list(set([os.path.expanduser(p) for p in re.split(',\s*', value) if p]))
     if not cls.wpath:
@@ -44,6 +51,9 @@ class VachDefs:
 
   @classmethod
   def _check_vault_id(cls, value):
+    """ build vault id list
+    from comma separated string
+    """
     logging.debug("vault_id config check..")
     cls.vault_id=list(set([v for v in re.split(',\s*', value) if v]))
     if not cls.vault_id:
@@ -53,6 +63,8 @@ class VachDefs:
 
   @classmethod
   def _check_passwd_length(cls, value):
+    """ check value of passwd_length
+    """
     logging.debug("passwd_length config check..")
     try:
       value=int(value)
@@ -67,7 +79,8 @@ class VachDefs:
     
 
 def read_vach_cfg():
-  """ read vach config file
+  """ read vach config file(s)
+  and set default values in VachDefs class
   """
   #VachDefs.show()
   def_sec=CFG_DEFAULT_SECTION
