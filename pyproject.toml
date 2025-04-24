@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vach"
-version = "0.21.2"
+version = "0.22.0"
 dependencies = [
   "argcomplete",
   "ansible-vault",
@@ -31,7 +31,7 @@ Homepage = "https://github.com/terasik/chvp"
 vach="src"
 
 [project.scripts]
-vach = "chvp.cli:main"
+vach = "vach.cli:main"
 
 #[tool.setuptools.package-data]
 #"chvp.examples" = ["*"]
