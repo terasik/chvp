@@ -106,7 +106,7 @@ ignore_file_regex=ign_file_rg[Xx]
   },
   "files": [
     {
-      "path": "/home/vboxuser/vach_dir/myobject.yaml",
+      "path": "/home/firusik/vach_dir/myobject.yaml",
       "succeeded": true,
       "written": false,
       "ignored": false,
@@ -114,7 +114,7 @@ ignore_file_regex=ign_file_rg[Xx]
       "vault_vars": []
     },
     {
-      "path": "/home/vboxuser/vach_dir/vach_test_file_2.yml",
+      "path": "/home/firusik/vach_dir/vach_test_file_2.yml",
       "succeeded": true,
       "written": false,
       "ignored": false,
@@ -127,7 +127,7 @@ ignore_file_regex=ign_file_rg[Xx]
       ]
     },
     {
-      "path": "/home/vboxuser/vach_dir/vach_error_file.yml",
+      "path": "/home/firusik/vach_dir/vach_error_file.yml",
       "succeeded": false,
       "written": false,
       "ignored": false,
@@ -137,7 +137,7 @@ ignore_file_regex=ign_file_rg[Xx]
       "vault_vars": []
     },
     {
-      "path": "/home/vboxuser/vach_dir/.git/description",
+      "path": "/home/firusik/vach_dir/.git/description",
       "succeeded": false,
       "written": false,
       "ignored": true,
