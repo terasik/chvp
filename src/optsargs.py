@@ -19,7 +19,8 @@ cliparser=argparse.ArgumentParser(
 # positional arguments files or directories
 cliparser.add_argument('wpath',
                       nargs='*',
-                      metavar="PATH",
+                      metavar="DIR_OR_FILE",
+                      help='search in DIR for yaml files with ansible vault strings or in FILE for vault strings',
                       # TODO. default=['.']
                       default=VachDefs.wpath)
 # provide vault ids
@@ -37,7 +38,7 @@ cliparser.add_argument('-i', '--vault-id',
 cliparser.add_argument('-g', '--gen-passwd',
                       dest='gen_passwd',
                       nargs='?',
-                      help='generate passwords for new vault ids.\nif no LENGTH ios provided use default length',
+                      help='generate passwords for new vault ids.\nif no LENGTH is provided use default length',
                       default=None,
                       const=VachDefs.passwd_length,
                       type=int,
