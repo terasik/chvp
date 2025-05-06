@@ -129,7 +129,13 @@ class VachContext:
   """ context class for logging
   and general purpose.
   """
-  file=None
+  path=""
+
+  @classmethod
+  def reset(cls):
+    """ class method to reset some values
+    """
+    cls.path=""
 
 class VachFile:
   """ class to keep all informations
@@ -147,13 +153,13 @@ class VachFile:
 
   def __str__(self):
     if self.ignored:
-      s=f"IGNORED={self.ignored} path={self.path}"
+      s=f"IGNORED"
     elif self.errors:
-      s=f"MAYDAY={self.errors} path={self.path}"
+      s=f"MAYDAY={self.errors}"
     elif self.vault_vars:
-      s=f"VAULT={self.vault_vars} path={self.path}"
+      s=f"VAULT={self.vault_vars}"
     else:
-      s=f"UNKNOWN PLEASURES path={self.path}"
+      s=f"UNKNOWN PLEASURES"
     return s
 
 class VachSummary:
@@ -186,7 +192,7 @@ class VachSummary:
     self.push()
     if path:
       self.cur_file=VachFile(path)
-      VachContext.file=self.cur_file
+      VachContext.path=self.cur_file.path
 
   @cur_file_not_none
   def written(self):
@@ -201,6 +207,7 @@ class VachSummary:
     """
     self.all_files.append(self.cur_file)
     self.cur_file=None
+    VachContext.reset()
 
   @cur_file_not_none
   def success(self):
@@ -290,7 +297,7 @@ class VachSummary:
     in $HOME
     """
     t=datetime.strftime(datetime.now(),"%Y%m%d%H%M%S")
-    summary_file=f"{os.path.expanduser('~')}/vach_summary_{t}.json"
+    summary_file=f"vach_summary_{t}.json"
     logging.info("writing summary file: %s", summary_file)
     smry={"general": {}, "files": []}
     smry['general'].update({'all': len(self.all_files),
@@ -316,6 +323,8 @@ class VachSummary:
   def summary(self, write_to_file=False ):
     """ logg summary
     """
+    logging.info("-----------------------------------------------")
+    logging.info("-----------------------------------------------")
     logging.info("all files            : %s", len(self.all_files))
     logging.info("succes files count   : %s", self.cnt_success)
     logging.info("files with vault vars: %s", self.cnt_vaults)

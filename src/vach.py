@@ -74,7 +74,7 @@ class ChangeVaultPasswd():
         if isinstance(v, (list,dict)):
           self._search_for_vault(v, f"{var_path}:{k}",deep+1)
         elif isinstance(v, (YamlVault)):
-          logging.info("++ found vault: vid=%s plain=%s var_path=%s", v.vault_id, v.plain_text, new_var_path)
+          logging.info("++ found vault: vid=%s plain=%s var_path=%s"%( v.vault_id, v.plain_text, new_var_path))
           summary.vault_var(new_var_path)
           obj[k]=self._create_new_vault_obj(v)
     elif type(obj)==list:
@@ -84,11 +84,11 @@ class ChangeVaultPasswd():
         if isinstance(v, (list,dict)):
           self._search_for_vault(v, f"{var_path}[{c}]",deep+1)
         elif isinstance(v, (YamlVault)):
-          logging.info("++ found vault: vid=%s plain=%s var_path=%s", v.vault_id, v.plain_text, new_var_path)
+          logging.info("++ found vault: vid=%s plain=%s var_path=%s"% (v.vault_id, v.plain_text, new_var_path))
           summary.vault_var(new_var_path)
           obj[c]=self._create_new_vault_obj(v)
     elif isinstance(obj, (YamlVault)):
-      logging.info("++ found lonely vault: vid=%s plain=%s", obj.vault_id, obj.plain_text)
+      logging.info("++ found lonely vault: vid=%s plain=%s var_path=" % (obj.vault_id, obj.plain_text))
       obj=self._create_new_vault_obj(obj)
     else:
       #logging.error("something wrong with obj")
@@ -102,7 +102,8 @@ class ChangeVaultPasswd():
     write file if neccessery
     """
     cur_path=summary.cur_file.path
-    logging.debug("handle path: %s", cur_path)
+    #logging.debug("handle path: %s", cur_path)
+    logging.debug("start to handle file")
     # ignore check
     if summary.check_dir(self.ign_dir_rgx):
       return
@@ -111,18 +112,20 @@ class ChangeVaultPasswd():
     if not summary.match_file(self.match_file_rgx):
       return
     try:
-      logging.debug("try to load %s as yaml", cur_path)
+      #logging.debug("try to load %s as yaml", cur_path)
+      logging.debug("try to load file as yaml")
       obj=load_yaml(cur_path)
       logging.debug("loaded obj:%s%s", "\n",obj)
       obj_copy=self._search_for_vault(deepcopy(obj))
       logging.debug("modified obj:%s%s", "\n",obj_copy)
       if self.no_dry:
         if summary.cur_file.vault_vars:
-          logging.info("writing file with vault vars: %s",cur_path)
+          #logging.info("writing file with vault vars: %s",cur_path)
+          logging.info("writing file with vault vars")
           dump_yaml(obj_copy,cur_path)
           summary.written()
     except Exception as exc:
-      logging.error("problems with %s: %s", cur_path, exc)
+      logging.error("problems with file: %s", exc)
       summary.error(exc)
     else:
       summary.success()
