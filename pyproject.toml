@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vach"
-version = "0.22.0"
+version = "0.25.0"
 dependencies = [
   "argcomplete",
   "ansible-vault",
@@ -20,6 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: MIT License",
     "Operating System :: POSIX :: Linux",
 ]
@@ -32,8 +33,4 @@ vach="src"
 
 [project.scripts]
 vach = "vach.cli:main"
-
-#[tool.setuptools.package-data]
-#"chvp.examples" = ["*"]
-
 

@@ -24,7 +24,7 @@ class ChangeVaultPasswd():
   def __str__(self):
     s=("cliargs", "run")
     l=[f"{k}={v}" for k,v in self.__dict__.items() if (not  k.startswith("_")) and (k not in s) ]
-    return "\n".join(l)   
+    return " ".join(l)   
 
   def _set_cliargs_to_myself(self):
     """ set class attributes from parsed opts
@@ -125,7 +125,7 @@ class ChangeVaultPasswd():
           dump_yaml(obj_copy,cur_path)
           summary.written()
     except Exception as exc:
-      logging.error("problems with file: %s", exc)
+      logging.error("troubles every day with file: %s", exc)
       summary.error(exc)
     else:
       summary.success()

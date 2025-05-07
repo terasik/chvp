@@ -27,7 +27,7 @@ def record_factory(*args, **kwargs):
     return record
 logging.setLogRecordFactory(record_factory)
 
-# define passwd Filter
+# define plain Filter
 class PlainLogFilter(logging.Filter):
   def filter(self, record):
     record.msg=re.sub(r"plain=(.+?) ", r"plain=*** ", record.msg)
@@ -36,8 +36,6 @@ class PlainLogFilter(logging.Filter):
 plf=PlainLogFilter()
 
 
-#logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(levelname)s [%(process)d %(module)s %(funcName)s %(wfile)s] %(message)s", filename=LOG_FILE) 
-#logging.root.handlers[0].addFilter(plf)
 lfh=logging.FileHandler(LOG_FILE)
 lfh.setLevel(logging.DEBUG)
 lfh.setFormatter(logging.Formatter("%(asctime)s %(levelname)s [%(process)d %(module)s %(funcName)s %(wfile)s] %(message)s"))
@@ -45,8 +43,6 @@ lfh.addFilter(plf)
 lsh=logging.StreamHandler()
 lsh.setLevel(logging.INFO)
 lsh.setFormatter(logging.Formatter("%(levelname)s [%(module)s %(funcName)s %(wfile)s] %(message)s"))
-logging.getLogger('').setLevel(logging.DEBUG)
-logging.getLogger('').addHandler(lfh)
-logging.getLogger('').addHandler(lsh)
+logging.basicConfig(level=logging.DEBUG, handlers=[lsh, lfh])
 
 read_vach_cfg()

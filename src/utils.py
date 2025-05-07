@@ -290,7 +290,7 @@ class VachSummary:
   def show_cur(self):
     """ show current VachFile object
     """
-    logging.info("cur file: %s", self.cur_file)
+    logging.info("current file: %s", self.cur_file)
 
   def write(self):
     """ write json summary file
@@ -315,8 +315,11 @@ class VachSummary:
                           'ignored': o.ignored,
                           'errors': [str(x) for x in o.errors],
                           'vault_vars': list(o.vault_vars)})
-    with open(summary_file, "w") as fw:
-      json.dump(smry, fw, indent=2, ensure_ascii=False)
+    try:
+      with open(summary_file, "w") as fw:
+        json.dump(smry, fw, indent=2, ensure_ascii=False)
+    except Exception as exc:
+      logging.error("not possible to write summary file, nevermind (%s)", exc)
  
   
 
